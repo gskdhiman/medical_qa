@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>MY QA app</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="{% static 'chart.js' %}"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+
+{% csrf_token %}
+<script>
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+</script>
+
+<script>
+// fade out message alerts
+function fade_alerts() {
+    alerts = document.getElementsByClassName("alert msg");
+        var i = alerts.length;
+        for (let elem of alerts) {
+            i--;
+            time = 30+(100*i);
+            setTimeout(function() {
+                $(elem).fadeOut("slow");
+            }, time);
+        }
+}
+
+function getAnswer() {
+  var xhttp = new XMLHttpRequest();
+  var context = document.getElementById("passage").value;
+  var question = document.getElementById("question").value;
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      response = JSON.parse(this.responseText)
+      console.log(response.tokens)
+      console.log(response.start)
+      console.log(response.end)
+      document.getElementById("answer").value = response.answer;
+      // display message
+      const messages = document.getElementById("messages-list");
+      messages.innerHTML += response.msg;
+      fade_alerts();
+
+      // load content
+      const tokens = response.tokens;
+      const start = response.start;
+      const end = response.end;
+      barGraph = returnCharts(tokens, start, end);
+      showCharts(barGraph);
+
+    }
+  };
+  xhttp.open("POST", "get_answer_json", true);
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.setRequestHeader('X-CSRF-Token', csrftoken);
+  var requestData = {"context":context,
+              "question":question};
+  xhttp.send(JSON.stringify(requestData));
+}
+
+
+</script>
+
+
+<body>
+<section class="text-gray-600 body-font">
+
+    <div class="container px-25 py-24 mx-auto">
+        <div class="md:w-2/5 mx-auto bg-grey-300 rounded-lg p-2 flex-col md:ml-auto mt-10 md:mt-0 relative z-5">
+
+            <h2 class="text-gray-900 text-lg mb-1 font-medium title-font">QA APP</h2>
+            <p class="leading-relaxed mb-5 text-gray-600">Question Answering Application</p>
+
+            <div class="relative mb-3">
+                <label for="passage" class="leading-7 text-sm text-gray-800">Passage</label>
+                <textarea id="passage" name="passage"
+                          class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out">The doctor advised the patient to have medicines since he was having cold and fever and he was asked to take rest</textarea>
+            </div>
+
+            <div class="relative mb-10">
+                <label for="question" class="leading-7 text-sm text-gray-600">Question</label>
+                <textarea id="question" name="question"
+                          class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 h-10 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out">what symptoms does patient have?</textarea>
+            </div>
+
+
+            <div class="relative mb-5">
+                <input type="button" name="button" value="ANSWER"
+                       class="w-large text-white bg-black border-0 py-2 px-5 rounded border" onclick="getAnswer()">
+<!--                 <input type="button" name ="button" value="TRAIN" class="w-large text-white bg-black border-0 py-2 px-5 rounded border" onclick="location.href = '{% url 'qa.views.get_training' %}'">-->
+            </div>
+
+            <div class="relative mb-5">
+
+                <textarea id="answer" name="answer" readonly placeholder="Answer will appear here"
+                          class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 h-10 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea>
+                <ul class="messages text-green-700 border-0" id="messages-list"></ul>
+            </div>
+
+            <div class="container-fluid no-pad" id="confidence-content">
+                <canvas id="start"></canvas>
+                <canvas id="end"></canvas>
+
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>
