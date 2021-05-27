@@ -18,6 +18,7 @@ class QaView(APIView):
 
 @csrf_exempt
 def get_training(request):
+    # currently not used
     return render(request, 'train.html')
 
 @csrf_exempt

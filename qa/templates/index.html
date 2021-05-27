@@ -27,7 +27,7 @@ function fade_alerts() {
         var i = alerts.length;
         for (let elem of alerts) {
             i--;
-            time = 30+(100*i);
+            time = 900+(100*i);
             setTimeout(function() {
                 $(elem).fadeOut("slow");
             }, time);
@@ -96,7 +96,6 @@ function getAnswer() {
             <div class="relative mb-5">
                 <input type="button" name="button" value="ANSWER"
                        class="w-large text-white bg-black border-0 py-2 px-5 rounded border" onclick="getAnswer()">
-<!--                 <input type="button" name ="button" value="TRAIN" class="w-large text-white bg-black border-0 py-2 px-5 rounded border" onclick="location.href = '{% url 'qa.views.get_training' %}'">-->
             </div>
 
             <div class="relative mb-5">
