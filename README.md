@@ -1,6 +1,7 @@
 # medical_qa
 
 This project is build using [huggingface biobert squad model](https://huggingface.co/clagator/biobert_squad2_cased).
+<br>
 Note: Because of Github size restrictions please download the model and place in the model directory
 
 how to run the project
